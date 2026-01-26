@@ -17,7 +17,7 @@ const resources = {
             // Hero
             hero: {
                 title: 'Find Your Perfect Companion',
-                subtitle: 'Premium puppies from certified breeders, raised with love and care for your family.',
+                subtitle: 'We raise our puppies in a healthy environment, with love and care. Our Royal Teckel Homes are monitored, socialized, and ready to join responsible families.',
                 cta: 'Browse Dogs',
                 featured: 'Featured Dogs',
             },
@@ -44,6 +44,34 @@ const resources = {
                 size: 'Size',
                 gender: 'Gender',
                 price: 'Price',
+            },
+            // about-us
+            about: {
+                title: 'About Us',
+                subtitle: 'Discover who we are and our passion for dogs',
+                description: `
+                    We are a small, family-run breeder passionate about raising healthy, well-balanced puppies in a loving environment. Our dogs are raised with care, patience, and daily human interaction, ensuring they become confident and affectionate companions. Each puppy receives appropriate veterinary care, age-appropriate treatments, and early socialization. We prioritize quality over quantity and focus on responsible breeding practices, always prioritizing the well-being of our puppies. Transparency, honesty, and respect are at the heart of everything we do. We guide prospective families through every step of the process and remain available for support even after adoption, because placing a puppy is not just a transaction, it's a lifelong commitment.
+                    
+                    Our goal is simple:
+                    To connect our puppies with loving and responsible families and give them the best possible start in life.`,
+                values: {
+                    love: {
+                        title: 'Love & Care',
+                        description: 'Each puppy is raised with love and receives constant attention.',
+                    },
+                    trust: {
+                        title: 'Trust',
+                        description: 'Transparency and honesty are at the heart of our relationships.',
+                    },
+                    quality: {
+                        title: 'Quality',
+                        description: 'Only the best for our puppies: nutrition, care, and environment.',
+                    },
+                    family: {
+                        title: 'Family',
+                        description: 'We support you throughout your adoption journey.',
+                    },
+                },
             },
             // WhatsApp
             whatsapp: {
@@ -153,7 +181,7 @@ const resources = {
             // Hero
             hero: {
                 title: 'Trouvez Votre Compagnon Idéal',
-                subtitle: "Chiots de qualité issus d'éleveurs certifiés, élevés avec amour pour votre famille.",
+                subtitle: "Nous élevons nos chiots dans un environnement sain, avec amour et attention. Nos teckels sont suivis, sociabilisés et prêts à rejoindre des familles responsables.",
                 cta: 'Voir les Chiens',
                 featured: 'Chiens en Vedette',
             },
@@ -180,6 +208,34 @@ const resources = {
                 size: 'Taille',
                 gender: 'Sexe',
                 price: 'Prix',
+            },
+            // About
+            about: {
+                title: 'À Propos de Nous',
+                subtitle: 'Découvrez qui nous sommes et notre passion pour les chiens',
+                description: `
+                    Nous sommes un petit éleveur familial passionné par l’élevage de chiots en bonne santé et bien équilibrés dans un environnement aimant. Nos chiens sont élevés avec soin, patience et interaction humaine quotidienne, ce qui garantit qu’ils deviennent des compagnons confiants et affectueux. Chaque chiot reçoit un suivi vétérinaire approprié, des soins adaptés à l’âge et une socialisation précoce. Nous donnons la priorité à la qualité plutôt qu’à la quantité et nous nous concentrons sur des pratiques d’élevage responsables, en accordant toujours la priorité au bien-être de nos chiots. La transparence, l’honnêteté et le respect sont au cœur de tout ce que nous faisons. Nous guidons les futures familles à chaque étape du processus et restons disponibles pour un soutien même après l’adoption, car placer un chiot n’est pas seulement une transaction, c’est un engagement à vie.
+                    
+                    Notre objectif est simple :
+                    Pour mettre en relation nos chiots avec des familles aimantes et responsables et leur donner le meilleur départ possible dans la vie.`,
+                values: {
+                    love: {
+                        title: 'Amour & Soin',
+                        description: 'Chaque chiot est élevé avec amour et reçoit une attention constante.',
+                    },
+                    trust: {
+                        title: 'Confiance',
+                        description: 'La transparence et l\'honnêteté sont au cœur de nos relations.',
+                    },
+                    quality: {
+                        title: 'Qualité',
+                        description: 'Le meilleur pour nos chiots : nutrition, soins et environnement.',
+                    },
+                    family: {
+                        title: 'Famille',
+                        description: 'Nous vous accompagnons tout au long de votre parcours d\'adoption.',
+                    },
+                },
             },
             // WhatsApp
             whatsapp: {

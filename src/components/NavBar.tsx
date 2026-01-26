@@ -33,6 +33,7 @@ export function Navbar() {
     const navLinks = [
         { href: '/', label: t('nav.home') },
         { href: '/dogs', label: t('nav.dogs') },
+        { href: '/about-us', label: t('nav.about') },
         ...(isAdmin ? [{ href: '/admin', label: t('nav.admin') }] : []),
     ];
 
@@ -42,14 +43,14 @@ export function Navbar() {
         <motion.header
             initial={{ y: -100 }}
             animate={{ y: 0 }}
-            className="fixed top-0 left-0 right-0 z-50 glass-effect border-b border-border"
+            className="sticky top-0 left-0 right-0 z-50 glass-effect border-b border-border"
         >
             <div className="mx-auto px-4">
                 <div className="flex items-center justify-between h-16 md:h-20">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2">
                         <Dog className="h-8 w-8 text-primary" />
-                        <span className="font-display text-xl md:text-2xl font-semibold">PupPremium</span>
+                        <span className="font-display text-xl md:text-2xl font-semibold">Royal Teckel Home</span>
                     </Link>
 
                     {/* Desktop Navigation */}

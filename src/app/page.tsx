@@ -32,7 +32,7 @@ const Home = () => {
   ];
 
   const testimonials = [
-    { name: 'Sarah M.', location: 'New York, USA', text: 'We found our perfect Golden Retriever through PupPremium. The process was smooth and transparent.', textFr: 'Nous avons trouvé notre Golden Retriever parfait grâce à PupPremium. Le processus était fluide et transparent.' },
+    { name: 'Sarah M.', location: 'New York, USA', text: 'We found our perfect Golden Retriever through Royal Teckel Home. The process was smooth and transparent.', textFr: 'Nous avons trouvé notre Golden Retriever parfait grâce à Royal Teckel Home. Le processus était fluide et transparent.' },
     { name: 'Pierre D.', location: 'Paris, France', text: 'Excellent service and a beautiful French Bulldog. Very professional team!', textFr: 'Excellent service et un magnifique Bouledogue Français. Équipe très professionnelle !' },
     { name: 'Emma L.', location: 'Los Angeles, USA', text: 'The team helped us find the perfect puppy for our family. Highly recommend!', textFr: 'L\'équipe nous a aidés à trouver le chiot parfait pour notre famille. Je recommande vivement !' },
   ];
@@ -51,11 +51,11 @@ const Home = () => {
           l0rd_9h057
       </div>
       {/* Hero Section */}
-      <section className="relative min-h-screen mt-15 flex items-center overflow-hidden">
+      <section className="relative min-h-screen flex items-center overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <img
-            src="hero-dog.jpg"
+            src="hero-dog1.jpg"
             alt="Beautiful puppy - Premium puppies for adoption"
             className="w-full h-full object-cover"
           />

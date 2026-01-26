@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Send, Facebook, Instagram, Twitter, Linkedin, Mail, Phone, MapPin } from 'lucide-react';
+import { Send, Facebook, Instagram, Twitter, Linkedin, Mail, Phone, MapPin, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -62,11 +62,13 @@ export function ContactForm() {
         }
     };
 
+    const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER!;
     const socialLinks = [
-        { icon: Facebook, href: 'https://facebook.com/puppremium', label: 'Facebook' },
-        { icon: Instagram, href: 'https://instagram.com/puppremium', label: 'Instagram' },
-        { icon: Twitter, href: 'https://twitter.com/puppremium', label: 'Twitter' },
-        { icon: Linkedin, href: 'https://linkedin.com/company/puppremium', label: 'LinkedIn' },
+        { icon: Facebook, href: 'https://www.facebook.com/share/1GVL65fg4E/?mibextid=wwXIfr', label: 'Facebook' },
+        { icon: MessageCircle, href: `https://wa.me/${phoneNumber.replaceAll(' ', '')}`, label: 'Whatsapp' },
+        // { icon: Instagram, href: 'https://instagram.com/Royal Teckel Home', label: 'Instagram' },
+        // { icon: Twitter, href: 'https://twitter.com/Royal Teckel Home', label: 'Twitter' },
+        // { icon: Linkedin, href: 'https://linkedin.com/company/Royal Teckel Home', label: 'LinkedIn' },
     ];
 
     return (
@@ -204,7 +206,7 @@ export function ContactForm() {
                             </h3>
                             <div className="space-y-4">
                                 <a
-                                    href="mailto:contact@puppremium.com"
+                                    href="mailto:contact@Royal Teckel Home.com"
                                     className="flex items-center gap-4 p-3 rounded-lg hover:bg-secondary/50 transition-colors"
                                 >
                                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
@@ -212,7 +214,7 @@ export function ContactForm() {
                                     </div>
                                     <div>
                                         <p className="text-sm text-muted-foreground">{t('footer.email')}</p>
-                                        <p className="font-medium">contact@puppremium.com</p>
+                                        <p className="font-medium">{process.env.NEXT_PUBLIC_EMAIL!}</p>
                                     </div>
                                 </a>
                                 <a
@@ -224,10 +226,10 @@ export function ContactForm() {
                                     </div>
                                     <div>
                                         <p className="text-sm text-muted-foreground">{t('footer.phone')}</p>
-                                        <p className="font-medium">+1 (234) 567-890</p>
+                                        <p className="font-medium">{process.env.NEXT_PUBLIC_WHATSAPP_NUMBER!}</p>
                                     </div>
                                 </a>
-                                <div className="flex items-center gap-4 p-3 rounded-lg">
+                                {/* <div className="flex items-center gap-4 p-3 rounded-lg">
                                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                                         <MapPin className="h-5 w-5 text-primary" />
                                     </div>
@@ -235,7 +237,7 @@ export function ContactForm() {
                                         <p className="text-sm text-muted-foreground">{t('footer.address')}</p>
                                         <p className="font-medium">New York, USA / Paris, France</p>
                                     </div>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
 
@@ -257,6 +259,7 @@ export function ContactForm() {
                                         <span className="sr-only">{social.label}</span>
                                     </a>
                                 ))}
+                                
                             </div>
                             <p className="mt-6 text-muted-foreground text-sm">
                                 {t('contact.socialDescription')}

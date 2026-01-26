@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
                     <p style="background-color: #f1f1f1; padding: 10px; border-radius: 5px;">${message}</p>
                     <footer style="text-align: center; margin-top: 20px; font-size: 0.9em; color: #666;">
                         <p>Thank you for reaching out!</p>
-                        <p>&copy; ${new Date().getFullYear()} PupPremium - G.E.N.I.N</p>
+                        <p>&copy; ${new Date().getFullYear()} Royal Teckel Home - G.E.N.I.N</p>
                     </footer>
                 </div>
             `,

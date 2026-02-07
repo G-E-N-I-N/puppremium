@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Upload, X, Check, Edit3, Loader } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -38,6 +38,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useDogs, useCreateDog, useUpdateDog, useDeleteDog, Dog, DogInsert } from '@/hooks/useDogs';
+import { createClient } from '@/lib/supabase/client';
 
 const initialFormData: DogInsert = {
     name: '',
@@ -52,6 +53,9 @@ const initialFormData: DogInsert = {
     image_url: '',
     is_featured: false,
 };
+
+const MAX_IMAGE_SIZE = 2 * 1024 * 1024;
+const ALLOWED_TYPES = ['image/jpeg', 'image/png'];
 
 const Admin = () => {
     useEffect(() => {
@@ -68,8 +72,13 @@ const Admin = () => {
     const deleteDog = useDeleteDog();
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [editingDog, setEditingDog] = useState<Dog | null>(null);
     const [formData, setFormData] = useState<DogInsert>(initialFormData);
+
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [imageError, setImageError] = useState<string | null>(null);
 
     const router = useRouter();
 
@@ -85,6 +94,9 @@ const Admin = () => {
     }, [status, session, router]);
 
     const handleOpenDialog = (dog?: Dog) => {
+        setImageFile(null);
+        setImagePreview(dog?.image_url || null);
+        setImageError(null);
         if (dog) {
             setEditingDog(dog);
             setFormData({
@@ -106,6 +118,82 @@ const Admin = () => {
         }
         setIsDialogOpen(true);
     };
+
+    const handleImage = (file: File) => {
+        if (!ALLOWED_TYPES.includes(file.type)) {
+            setImageError(t('admin.imageErrorType'));
+            return;
+        }
+
+        if (file.size > MAX_IMAGE_SIZE) {
+            setImageError(t('admin.imageErrorSize'));
+            return;
+        }
+
+        setImageError(null);
+        setImageFile(file);
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            handleImage(e.dataTransfer.files[0]);
+        }
+    };
+
+    const handleRemoveImage = () => {
+        setImageFile(null);
+        setImagePreview(null);
+        setImageError(null);
+        setFormData({ ...formData, image_url: '' })
+    };
+
+    const supabase = createClient();
+    const handleSendImage = async () => {
+        if (!imageFile) return;
+
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${Date.now()}.${fileExt}`;
+        const filePath = fileName;
+        setLoading(true);
+
+        try {
+            const { error: uploadError } = await supabase.storage
+                .from('Royal-Teckel-Homes')
+                .upload(filePath, imageFile, {
+                    cacheControl: '3600',
+                    upsert: true,
+                });
+
+            if (uploadError) {
+                console.error(uploadError.message);
+                return;
+            }
+
+            const { data } = supabase.storage
+                .from('Royal-Teckel-Homes')
+                .getPublicUrl(filePath);
+
+            if (data?.publicUrl) {
+                setFormData((prev) => ({
+                    ...prev,
+                    image_url: data.publicUrl,
+                }));
+            }
+        } catch (err: any) {
+            console.error(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -279,8 +367,86 @@ const Admin = () => {
                                             value={formData.image_url || ''}
                                             onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
                                             placeholder="https://..."
+                                            disabled={!!imagePreview}
                                         />
                                     </div>
+                                    <div className="space-y-2">
+                                        <Label>{t('admin.image')}</Label>
+
+                                        {!(imagePreview || formData.image_url) ? (
+                                            <div
+                                                onDragOver={(e) => e.preventDefault()}
+                                                onDrop={handleDrop}
+                                                className="flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-lg p-6 text-sm text-muted-foreground cursor-pointer hover:border-primary transition"
+                                            >
+                                                <input
+                                                    type="file"
+                                                    accept="image/png,image/jpeg"
+                                                    hidden
+                                                    id="imageUpload"
+                                                    onChange={(e) => {
+                                                        if (e.target.files?.[0]) {
+                                                            handleImage(e.target.files[0]);
+                                                        }
+                                                    }}
+                                                />
+                                                <Label
+                                                    htmlFor="imageUpload"
+                                                    className="cursor-pointer text-center"
+                                                >
+                                                    <p className="font-medium">{t('admin.dropImage')}</p>
+                                                    <p className="text-xs opacity-70">
+                                                        JPG / PNG — max 2Mo
+                                                    </p>
+                                                </Label>
+                                            </div>
+                                        ) : (
+                                            <div className="relative rounded-lg border overflow-hidden">
+                                                <img
+                                                    src={imagePreview || formData.image_url!}
+                                                    alt="Preview"
+                                                    className="w-full h-full object-cover"
+                                                />
+
+                                                <div className="absolute inset-0 bg-black/40 opacity-100 hover:opacity-100 transition flex items-center justify-center gap-3">
+                                                    <Button
+                                                        type="button"
+                                                        size="sm"
+                                                        variant="destructive"
+                                                        onClick={handleRemoveImage}
+                                                    >
+                                                        <Trash2 className="w-4 h-4 mr-2" />{t('admin.remove')}
+                                                    </Button>
+                                                    <Button
+                                                        type="button"
+                                                        size="sm"
+                                                        onClick={() => document.getElementById('imageUpload')?.click()}
+                                                    >
+                                                        <Edit3 className="w-4 h-4 mr-2" />{t('admin.change')}
+                                                    </Button>
+                                                    <Button
+                                                        type="button"
+                                                        size="sm"
+                                                        variant="secondary"
+                                                        onClick={() => handleSendImage() }
+                                                    >
+                                                        {loading ? (
+                                                            <Loader className='w-4 h-4 mr-2 animate-spin' />
+                                                        ) : (
+                                                            <><Check className="w-4 h-4 mr-2" />{t('admin.send')}</>
+                                                        )}
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {imageError && (
+                                            <p className="text-sm text-destructive">
+                                                {imageError}
+                                            </p>
+                                        )}
+                                    </div>
+
 
                                     <div className="space-y-2">
                                         <Label htmlFor="descEn">{t('admin.description')} (EN)</Label>
@@ -316,7 +482,13 @@ const Admin = () => {
                                             {t('admin.cancel')}
                                         </Button>
                                         <Button type="submit" disabled={createDog.isPending || updateDog.isPending}>
-                                            {t('admin.save')}
+                                            {loading ? (
+                                                <Loader className='w-4 h-4 mr-2 animate-spin' />
+                                            ) : editingDog ? (
+                                                <><Check className="w-4 h-4 mr-2" />{t('admin.save')}</>
+                                            ) : (
+                                                <><Plus className="w-4 h-4 mr-2" />{t('admin.addDog')}</>
+                                            )}
                                         </Button>
                                     </div>
                                 </form>
@@ -421,222 +593,3 @@ const Admin = () => {
 };
 
 export default Admin;
-
-// 'use client'
-
-// import { useState, useEffect } from 'react'
-// import { useTranslation } from 'react-i18next'
-// import { motion } from 'framer-motion'
-// import { Plus, Pencil, Trash2 } from 'lucide-react'
-// import { useRouter } from 'next/navigation'
-// import { useSession } from 'next-auth/react'
-// import {
-//     useDogs,
-//     useCreateDog,
-//     useUpdateDog,
-//     useDeleteDog,
-//     Dog,
-//     DogInsert,
-// } from '@/hooks/useDogs'
-
-// const initialFormData: DogInsert = {
-//     name: '',
-//     breed: '',
-//     age_months: 3,
-//     price: 1000,
-//     description_en: '',
-//     description_fr: '',
-//     gender: 'male',
-//     size: 'medium',
-//     status: 'available',
-//     image_url: '',
-//     is_featured: false,
-// }
-
-// export default function Admin() {
-//   const { t } = useTranslation()
-//   const { data: session, status } = useSession()
-//   const { data: dogs, isLoading } = useDogs()
-//   const createDog = useCreateDog()
-//   const updateDog = useUpdateDog()
-//   const deleteDog = useDeleteDog()
-//   const router = useRouter()
-
-//   const [isDialogOpen, setIsDialogOpen] = useState(false)
-//   const [editingDog, setEditingDog] = useState<Dog | null>(null)
-//   const [formData, setFormData] = useState<DogInsert>(initialFormData)
-
-//   useEffect(() => {
-//     if (status === 'unauthenticated') router.replace('/login')
-//     if (status === 'authenticated' && session?.user.role !== 'admin')
-//       router.replace('/')
-//   }, [status, session, router])
-
-//   if (status === 'loading') {
-//     return <p className="text-center py-20">{t('common.loading')}</p>
-//   }
-
-//   if (!session || session.user.role !== 'admin') return null
-
-//   const openDialog = (dog?: Dog) => {
-//     if (dog) {
-//       setEditingDog(dog)
-//       setFormData({ ...dog })
-//     } else {
-//       setEditingDog(null)
-//       setFormData(initialFormData)
-//     }
-//     setIsDialogOpen(true)
-//   }
-
-//   const handleSubmit = async (e: React.FormEvent) => {
-//     e.preventDefault()
-//     if (editingDog) {
-//       await updateDog.mutateAsync({ _id: editingDog._id, ...formData })
-//     } else {
-//       await createDog.mutateAsync(formData)
-//     }
-//     setIsDialogOpen(false)
-//   }
-
-//   const handleDelete = async (id: string) => {
-//     if (confirm(t('admin.confirmDelete'))) {
-//       await deleteDog.mutateAsync(id)
-//     }
-//   }
-
-//   return (
-//     <div className="container mx-auto px-4 py-12">
-//       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-//         <div className="flex justify-between mb-6">
-//           <h1 className="text-3xl font-bold">{t('admin.title')}</h1>
-//           <button
-//             onClick={() => openDialog()}
-//             className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded"
-//           >
-//             <Plus size={16} /> {t('admin.addDog')}
-//           </button>
-//         </div>
-
-//         {/* Dialog */}
-//         {isDialogOpen && (
-//           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-//             <form
-//               onSubmit={handleSubmit}
-//               className="bg-white p-6 rounded-lg w-full max-w-2xl space-y-4"
-//             >
-//               <h2 className="text-xl font-bold">
-//                 {editingDog ? t('admin.editDog') : t('admin.addDog')}
-//               </h2>
-
-//               <input
-//                 className="w-full border p-2"
-//                 placeholder={t('admin.name')}
-//                 value={formData.name}
-//                 onChange={(e) =>
-//                   setFormData({ ...formData, name: e.target.value })
-//                 }
-//                 required
-//               />
-
-//               <input
-//                 className="w-full border p-2"
-//                 placeholder={t('admin.breed')}
-//                 value={formData.breed}
-//                 onChange={(e) =>
-//                   setFormData({ ...formData, breed: e.target.value })
-//                 }
-//                 required
-//               />
-
-//               <select
-//                 className="w-full border p-2"
-//                 value={formData.gender}
-//                 onChange={(e) =>
-//                   setFormData({
-//                     ...formData,
-//                     gender: e.target.value as any,
-//                   })
-//                 }
-//               >
-//                 <option value="male">{t('dogs.male')}</option>
-//                 <option value="female">{t('dogs.female')}</option>
-//               </select>
-
-//               <textarea
-//                 className="w-full border p-2"
-//                 placeholder="Description"
-//                 value={formData.description_en}
-//                 onChange={(e) =>
-//                   setFormData({
-//                     ...formData,
-//                     description_en: e.target.value,
-//                   })
-//                 }
-//               />
-
-//               <label className="flex items-center gap-2">
-//                 <input
-//                   type="checkbox"
-//                   checked={formData.is_featured}
-//                   onChange={(e) =>
-//                     setFormData({
-//                       ...formData,
-//                       is_featured: e.target.checked,
-//                     })
-//                   }
-//                 />
-//                 {t('admin.featured')}
-//               </label>
-
-//               <div className="flex justify-end gap-2">
-//                 <button
-//                   type="button"
-//                   onClick={() => setIsDialogOpen(false)}
-//                   className="px-4 py-2 border rounded"
-//                 >
-//                   {t('admin.cancel')}
-//                 </button>
-//                 <button
-//                   type="submit"
-//                   className="px-4 py-2 bg-black text-white rounded"
-//                 >
-//                   {t('admin.save')}
-//                 </button>
-//               </div>
-//             </form>
-//           </div>
-//         )}
-
-//         {/* Table */}
-//         <table className="w-full border mt-6">
-//           <thead className="bg-gray-100">
-//             <tr>
-//               <th className="p-2 text-left">{t('admin.name')}</th>
-//               <th className="p-2">{t('admin.breed')}</th>
-//               <th className="p-2">{t('admin.price')}</th>
-//               <th className="p-2 text-right">Actions</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {dogs?.map((dog) => (
-//               <tr key={dog._id} className="border-t">
-//                 <td className="p-2">{dog.name}</td>
-//                 <td className="p-2">{dog.breed}</td>
-//                 <td className="p-2">${dog.price}</td>
-//                 <td className="p-2 text-right space-x-2">
-//                   <button onClick={() => openDialog(dog)}>
-//                     <Pencil size={16} />
-//                   </button>
-//                   <button onClick={() => handleDelete(dog._id)}>
-//                     <Trash2 size={16} className="text-red-600" />
-//                   </button>
-//                 </td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//       </motion.div>
-//     </div>
-//   )
-// }

@@ -137,6 +137,13 @@ const resources = {
                 confirmDelete: 'Are you sure you want to delete this dog?',
                 success: 'Operation successful!',
                 error: 'An error occurred.',
+                image: "Image",
+                dropImage: "Drag and drop an image or click to select",
+                remove: "Remove",
+                change: "Change",
+                send: "Send",
+                imageErrorType: "Only JPG and PNG files are allowed",
+                imageErrorSize: "The image must not exceed 2 MB",
             },
             // Auth
             auth: {
@@ -309,6 +316,13 @@ const resources = {
                 confirmDelete: 'Êtes-vous sûr de vouloir supprimer ce chien ?',
                 success: 'Opération réussie !',
                 error: 'Une erreur est survenue.',
+                image: "Image",
+                dropImage: "Glissez-déposez une image ou cliquez pour sélectionner",
+                remove: "Retirer",
+                change: "Changer",
+                send: "Envoyer",
+                imageErrorType: "Seuls les fichiers JPG et PNG sont autorisés",
+                imageErrorSize: "L’image ne doit pas dépasser 2 Mo",
             },
             // Auth
             auth: {
